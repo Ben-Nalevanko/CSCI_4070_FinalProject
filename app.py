@@ -25,16 +25,18 @@ def load_data():
 	if file:
 		filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
 		file.save(filepath)
-	return jsonify({'message': 'File uploaded successfully'}), 200
 
 
 	# loads contents into data
 	try:
+		print("try")
 		global data
 		data = pd.read_csv(filepath)
-		return True
+		print(data)
 	except FileNotFoundError:
-		return False
+		print("Error");
+
+	return jsonify({'message': 'File uploaded successfully'}), 200
 
 def lin_reg_train(data, target, features):
 	x = data[features]
