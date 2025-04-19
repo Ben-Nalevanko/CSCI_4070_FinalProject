@@ -2,18 +2,39 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from flask import jsonify, Flask, request
+from flask_cors import CORS
 import csv
+import os
 
 app = Flask(__name__)
-data = pd.DataFrame()
+CORS(app)
 
-def load_data(filename):
+data = pd.DataFrame()
+UPLOAD_FOLDER = "data_files"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@app.route("/load_data", methods=["GET", "POST"])
+def load_data():
+	# downloads the file locally so the app can open it
+	if 'file' not in request.files:
+		return jsonify({'message': 'No file part'}), 400
+	file = request.files['file']
+	if file.filename == '':
+		return jsonify({'message': 'No selected file'}), 400
+	if file:
+		filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+		file.save(filepath)
+	return jsonify({'message': 'File uploaded successfully'}), 200
+
+
+	# loads contents into data
 	try:
 		global data
-		data = pd.read_csv(filename);
+		data = pd.read_csv(filepath)
+		return True
 	except FileNotFoundError:
-		print("Error: File not found")
-	print(data)
+		return False
 
 def lin_reg_train(data, target, features):
 	x = data[features]
@@ -31,11 +52,28 @@ def lin_reg_test(trained_model, target, features):
 	y = data[target]
 	model = trained_model
 	y_pred = model.predict(x)
-	print(y_pred)
 
-load_data("test.csv")
-target = "price"
-features=["area", "bedrooms", "bathrooms", "stories"]
+# After loading the data
+# Runs training and testing
+# Called by script.js
+@app.route("/run", methods=["GET", "POST"])
+def run():
+	if data is None:
+		return jsonify({"error": "No data Loaded"}), 404
+	#dummy values for testing, call training and testing algorithms
+	match request.json.get("algorithm"):
+		case "linreg":
+			print("linreg")
+		case "cluster":
+			print("cluster")
 
-model = lin_reg_train(data, target, features)
-lin_reg_test(model, target, features)
+#load_data("test.csv")
+#target = "price"
+#features=["area", "bedrooms", "bathrooms", "stories"]
+
+#model = lin_reg_train(data, target, features)
+#lin_reg_test(model, target, features)
+
+#Essentially a main method to run the app
+if __name__ == "__main__":
+	app.run(debug=True)
