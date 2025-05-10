@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" contents="width=device-width, initial-scale=1.0">
+	<title>Machine Learning Analysis App</title>
+	<!-- Link to stylesheet later -->
+</head>
+<body>
+	<div class="file-input">
+		<div class="file-input-slot"></div>
+		<input type="file" id="fileInput" name="fileInput" accept=".csv">
+		<button id="upload-button">Upload</button>
+	</div>
+	<div class="options">
+		<label for="algorithm-options">Choose an algorithm: </label>
+		<select name="algorithm-options" id="algorithm-options">
+			<option value="cluster">Clustering</option>
+			<option value="linreg">Linear Regression</option>
+		</select>
+	</div>
+	<div>
+		<button id="run-button">Start Analysis</button>
+	</div>
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
